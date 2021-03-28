@@ -8,8 +8,8 @@
 
 char auth[] = "yZ7V8dmz4POMSQpRYsua_ZrdFCw50W76";
 char curTime[20];
-const char* ssid = "604ho2_2.4G";
-const char* password = "lks0710000000";
+const char* ssid = "604ho2_2.4G"; // wifi 이름
+const char* password = "lks0710000000"; // wifi 비번
 const String endpoint = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1141071000";
 const String url = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=pFmkXfLrWcbYYKJtzpJHf%2FRcA%2FcaB0BYUldGg65udvLp4FJ3lH3VgmbqDnEhXjKcjcX%2B6VAzDsuR2Q5Lsls2Mw%3D%3D&returnType=xml&numOfRows=100&pageNo=1&stationName=%EB%A7%88%ED%8F%AC%EA%B5%AC&dataTerm=DAILY&ver=1.3";
 String line1 = "";
@@ -93,12 +93,14 @@ void get_PM() {
   }
 }
 
-// 온도 저장 변수
+// 온도 변수
 float temp0;
 float temp1;
 float temp2;
+// 미세먼지 변수
 float PM25;
 float PM10;
+// 날씨 변수
 String announce_time;  
 String wfEn;
 String hour24;
@@ -110,12 +112,13 @@ String temp06;
 String wfKor24;
 String wfKor03;
 String wfKor06;
+// 미세먼지 변수2
 String dataTime;  
 String PM25_1;
 String PM10_1;
 
 
-
+// 날씨 rss
 void parsing() {
   int tm_start= line1.indexOf(F("<tm>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
   int tm_end= line1.indexOf(F("</tm>"));  
@@ -183,7 +186,7 @@ void parsing() {
   line1 = ""; // 스트링 변수 line1 데이터 추출 완료 
 }
 
-
+// 미세먼지 api
 void parsing2() {
   int data_start= line2.indexOf(F("<dataTime>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
   int data_end= line2.indexOf(F("</dataTime>"));  
@@ -246,6 +249,7 @@ void loop() {
  
   delay(1000);
 
+ //// 웹 파트
   // Return the response
   client.println("<title>IoT</title>");;
   client.println(""); //  do not forget this one
