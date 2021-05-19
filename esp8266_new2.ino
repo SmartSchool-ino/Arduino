@@ -8,10 +8,10 @@
 
 char auth[] = "yZ7V8dmz4POMSQpRYsua_ZrdFCw50W76";
 char curTime[20];
-const char* ssid = "604ho2_2.4G"; // wifi 이름
-const char* password = "lks0710000000"; // wifi 비번
+const char* ssid = "604ho2_2.4G";
+const char* password = "lks0710000000";
 const String endpoint = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1141071000";
-const String url = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=pFmkXfLrWcbYYKJtzpJHf%2FRcA%2FcaB0BYUldGg65udvLp4FJ3lH3VgmbqDnEhXjKcjcX%2B6VAzDsuR2Q5Lsls2Mw%3D%3D&returnType=xml&numOfRows=100&pageNo=1&stationName=%EB%A7%88%ED%8F%AC%EA%B5%AC&dataTerm=DAILY&ver=1.3";
+const String url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst?serviceKey=Hn8hkZzM%2B7YvGOv2I7um%2FU94g1HNg4Dp%2FB7PGzgCY2hPZKpX7DJ4urpTtr%2Bz%2FMq8XZydM%2BAbNiRWqNixDKrnKQ%3D%3D&numOfRows=1&pageNo=22&sidoName=%EC%84%9C%EC%9A%B8&searchCondition=HOUR";
 String line1 = "";
 String line2 = "";
 
@@ -93,14 +93,12 @@ void get_PM() {
   }
 }
 
-// 온도 변수
+// 온도 저장 변수
 float temp0;
 float temp1;
 float temp2;
-// 미세먼지 변수
-float PM25;
-float PM10;
-// 날씨 변수
+int PM25;
+int PM10;
 String announce_time;  
 String wfEn;
 String hour24;
@@ -112,13 +110,12 @@ String temp06;
 String wfKor24;
 String wfKor03;
 String wfKor06;
-// 미세먼지 변수2
 String dataTime;  
 String PM25_1;
 String PM10_1;
 
 
-// 날씨 rss
+
 void parsing() {
   int tm_start= line1.indexOf(F("<tm>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
   int tm_end= line1.indexOf(F("</tm>"));  
@@ -186,12 +183,12 @@ void parsing() {
   line1 = ""; // 스트링 변수 line1 데이터 추출 완료 
 }
 
-// 미세먼지 api
+
 void parsing2() {
-  int data_start= line2.indexOf(F("<dataTime>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
-  int data_end= line2.indexOf(F("</dataTime>"));  
-  announce_time = line2.substring(data_start + 10, data_end); // +4: "<tm>"스트링의 크기 4바이트, 4칸 이동
-  Serial.print(F("announce_time: ")); Serial.println(announce_time);
+  int dataTime_start= line2.indexOf(F("<dataTime>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
+  int dataTime_end= line2.indexOf(F("</dataTime>"));  
+  dataTime = line2.substring(dataTime_start + 10, dataTime_end); // +4: "<tm>"스트링의 크기 4바이트, 4칸 이동
+  Serial.print(F("dataTime: ")); Serial.println(dataTime);
   
   
   int PM25_start= line2.indexOf(F("<pm25Value>")); // "<tm>"문자가 시작되는 인덱스 값('<'의 인덱스)을 반환한다. 
@@ -249,7 +246,6 @@ void loop() {
  
   delay(1000);
 
- //// 웹 파트
   // Return the response
   client.println("<title>IoT</title>");;
   client.println(""); //  do not forget this one
@@ -259,7 +255,7 @@ void loop() {
   
   client.println("<head>");
   
-  client.println("<meta charset='utf-8' http-equiv='refresh' content='1'>");
+  client.println("<meta charset='utf-8'>");
   client.println("<title>IoT</title>"); 
   
   client.println("<style>");
@@ -299,15 +295,25 @@ void loop() {
   client.print ("<br /><br /><span class='font'>&nbsp;&nbsp현재 시간 :&nbsp;&nbsp</span>" );
   client.print (curTime);
   client.print ("<br /><br /><span class='font'>&nbsp;&nbspPM2.5(초미세먼지) :&nbsp;&nbsp</span>" );
-  client.print (PM25_1);
+  client.print (PM25);
   client.print ("<span class='font'>㎍/㎥</span><br />");
   client.print ("<span class='font'>&nbsp;&nbsp초미세먼지 :&nbsp;&nbsp</span>" );
-  client.print ("<span class='font'></span>"); if(0 < PM25 <= 15) {client.print("<span class='font좋음'>좋음</span>");} else if(PM25 <= 35) {client.print("<span class='font보통'>보통</span>");} else if(PM25 <= 75) {client.print("<span class='font나쁨'>나쁨</span>");} else if(PM25 > 75){client.print("<span class='font매우나쁨'>매우나쁨</span>");} else{client.print("<span class='font'>정보 없음</span>");}
+  client.print ("<span class='font'></span>"); 
+  if(PM25 > 0 && PM25 <= 15) {client.print("<span class='font좋음'>좋음</span>");} 
+  else if(PM25 > 15 && PM25 <= 35) {client.print("<span class='font보통'>보통</span>");} 
+  else if(PM25 > 35 && PM25 <= 75) {client.print("<span class='font나쁨'>나쁨</span>");} 
+  else if(PM25 > 75){client.print("<span class='font매우나쁨'>매우나쁨</span>");} 
+  else{client.print("<span class='font'>정보 없음</span>");}
   client.print ("<br /><br /><span class='font'>&nbsp;&nbspPM10(미세먼지) :&nbsp;&nbsp</span>" );
-  client.print (PM10_1);
+  if(PM10 > 0 && PM10 <= 30) {client.print("<span class='font좋음'>좋음</span>");} 
+  else if(PM10 > 30 && PM10 <= 80) {client.print("<span class='font보통'>보통</span>");} 
+  else if(PM10 > 80 && PM10 <= 150) {client.print("<span class='font나쁨'>나쁨</span>");} 
+  else if(PM10 > 150){client.print("<span class='font매우나쁨'>매우나쁨</span>");} 
+  else{client.print("<span class='font'>정보 없음</span>");}  
+  client.print (PM10);
   client.print ("<span class='font'>㎍/㎥</span><br />");
   client.print ("<span class='font'>&nbsp;&nbsp미세먼지 :&nbsp;&nbsp</span>" );
-  client.print ("<span class='font'></span>"); if(0 < PM10 <= 30) {client.print("<span class='font좋음'>좋음</span>");} else if(PM10 <= 80) {client.print("<span class='font보통'>보통</span>");} else if(PM10 <= 150) {client.print("<span class='font나쁨'>나쁨</span>");} else if(PM10 > 150){client.print("<span class='font매우나쁨'>매우나쁨</span>");} else{client.print("<span class='font'>정보 없음</span>");}
+  client.print ("<span class='font'></span>"); 
   client.print ("<br /><br /><span class='font'>&nbsp;&nbsp기준 :&nbsp;&nbsp</span>" );
   client.print (hour06);
   client.print ("<span class='font'>시</span><br /><br />");
